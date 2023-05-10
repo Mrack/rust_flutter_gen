@@ -1,4 +1,4 @@
-# Copyright © 2020-2022 Mrack
+# Copyright © 2020-2023 Mrack
 # Email: Mrack@qq.com
  
 import argparse
@@ -26,7 +26,6 @@ const base = 'rsapi';
 final path = Platform.isWindows ? '$base.dll' : 'lib$base.so';
 late final dylib = DynamicLibrary.open(path);
 late final rsapi = RsapiImpl(dylib);'''
-
 toml = '''
 
 [lib]
@@ -63,7 +62,6 @@ def genarater_rust():
     if os.access("lib/rs", mode=os.F_OK):
         shutil.rmtree("lib/rs")
     os.mkdir("lib/rs", mode=os.F_OK)
-
     write_file("lib/rs/api.dart", call_template)
 
 
@@ -112,11 +110,13 @@ def main():
         genarater_rust()
 
     if args.gen:
+        if run_command("cargo install flutter_rust_bridge_codegen") != 0:
+            return
         if run_command("flutter pub add flutter_rust_bridge") != 0:
             return
         if run_command("flutter pub add ffi") != 0:
             return
-        if run_command("flutter pub add -d ffigen:^6.0.1") != 0:
+        if run_command("flutter pub add -d ffigen") != 0:
             return
         run_command(
             "flutter_rust_bridge_codegen --rust-input ./rsapi/src/api.rs --dart-output ./lib/rs/bridge_generated.dart")
